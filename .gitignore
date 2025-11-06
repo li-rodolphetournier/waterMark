@@ -1,0 +1,42 @@
+# Python bytecode et caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+ENV/
+
+# Logs
+*.log
+
+# Artefacts de build / packaging (PyInstaller)
+build/
+dist/
+exe_final/
+output/
+
+# Fichiers/archives de build courants
+*.pyz
+*.pkg
+*.toc
+*.zip
+*.tar
+*.tar.gz
+
+# OS spécifiques
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / éditeurs
+.vscode/
+.idea/
+
+# Autres caches
+.pytest_cache/
+.mypy_cache/
+
+
