@@ -5,13 +5,14 @@ a = Analysis(
     ['watermark_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\rorot\\workspace\\image copyright\\fonts', 'fonts')],
-    hiddenimports=['PIL._imagingtk', 'PIL._tkinter_finder'],
+    datas=[('fonts', 'fonts')],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
+    optimize=0,
 )
 pyz = PYZ(a.pure)
 

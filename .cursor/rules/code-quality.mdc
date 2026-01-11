@@ -1,0 +1,207 @@
+---
+description: Règles de qualité de code et bonnes pratiques générales
+globs: ["**/*.py", "**/*.spec"]
+alwaysApply: true
+---
+
+# ✨ Qualité de Code et Best Practices
+
+## 🎯 Principes SOLID
+
+### Single Responsibility
+- Une classe = une responsabilité
+- Une fonction = une tâche
+- Séparer GUI / Logique / IO
+
+### Open/Closed
+- Classes extensibles mais fermées à la modification
+- Utiliser l'héritage et la composition
+
+### DRY (Don't Repeat Yourself)
+- Factoriser le code dupliqué
+- Créer des fonctions utilitaires réutilisables
+
+## 📝 Documentation
+
+### Docstrings (Google Style)
+```python
+def apply_watermark(image_path: str, text: str, opacity: float = 0.5) -> bool:
+    """Applique un watermark sur une image.
+    
+    Args:
+        image_path: Chemin vers l'image source
+        text: Texte du watermark
+        opacity: Transparence entre 0.0 et 1.0
+        
+    Returns:
+        True si le watermark a été appliqué avec succès
+        
+    Raises:
+        FileNotFoundError: Si l'image n'existe pas
+        ValueError: Si l'opacité est hors limites
+    """
+```
+
+### Commentaires
+- Commenter le **pourquoi**, pas le **quoi**
+- Éviter les commentaires évidents
+- Mettre à jour les commentaires avec le code
+
+## 🔄 Refactoring
+
+### Quand Refactoriser
+- Code dupliqué > 3 fois
+- Fonction > 50 lignes
+- Classe > 300 lignes
+- Complexité cyclomatique > 10
+
+### Patterns à Éviter
+```python
+# ❌ Magic numbers
+if opacity > 0.5:
+    ...
+
+# ✅ Constantes nommées
+OPACITY_THRESHOLD = 0.5
+if opacity > OPACITY_THRESHOLD:
+    ...
+
+# ❌ Conditions imbriquées profondes
+if a:
+    if b:
+        if c:
+            ...
+
+# ✅ Early return
+if not a:
+    return
+if not b:
+    return
+if not c:
+    return
+...
+```
+
+## 🧪 Tests
+
+### Structure des Tests
+```python
+def test_nom_fonction_cas_specifique():
+    # Arrange
+    input_data = "..."
+    
+    # Act
+    result = fonction(input_data)
+    
+    # Assert
+    assert result == expected
+```
+
+### Couverture Minimale
+- Fonctions critiques : 100%
+- Logique métier : 80%
+- GUI : Tests manuels documentés
+
+## 🚫 Anti-Patterns à Éviter
+
+### Code Smells
+- **God Class** : Une classe qui fait tout
+- **Long Method** : Méthode de plus de 50 lignes
+- **Feature Envy** : Méthode qui utilise plus les données d'une autre classe
+- **Data Clumps** : Groupes de variables toujours ensemble
+
+### Erreurs Courantes
+```python
+# ❌ Attraper toutes les exceptions silencieusement
+try:
+    ...
+except:
+    pass
+
+# ✅ Gérer les exceptions spécifiquement
+try:
+    ...
+except FileNotFoundError:
+    logger.error("Fichier non trouvé")
+except Exception as e:
+    logger.exception("Erreur inattendue")
+    raise
+
+# ❌ Chemins codés en dur
+font_path = "C:\\Windows\\Fonts\\arial.ttf"
+
+# ✅ Chemins dynamiques
+font_path = os.path.join(os.environ["WINDIR"], "Fonts", "arial.ttf")
+```
+
+## 📊 Métriques de Code
+
+### Objectifs
+| Métrique | Objectif |
+|----------|----------|
+| Lignes par fonction | < 50 |
+| Paramètres par fonction | < 5 |
+| Profondeur d'imbrication | < 4 |
+| Complexité cyclomatique | < 10 |
+
+## 🔧 Configuration
+
+### requirements.txt
+```
+# Toujours épingler les versions
+pillow>=10.0.0,<11.0.0
+pyinstaller>=5.13.0
+```
+
+### .gitignore Essentiel
+```
+# Build
+build/
+dist/
+*.spec
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env
+venv/
+```
+
+## 🔐 Sécurité
+
+### Données Sensibles
+- NE JAMAIS commiter de secrets
+- Utiliser des variables d'environnement
+- Valider toutes les entrées utilisateur
+
+### Fichiers et Chemins
+```python
+# ✅ Utiliser pathlib pour la manipulation de chemins
+from pathlib import Path
+
+base_path = Path(__file__).parent
+config_path = base_path / "config" / "settings.json"
+```
+
+## 🌐 Internationalisation
+
+### Préparation i18n
+```python
+# Centraliser les chaînes de caractères
+MESSAGES = {
+    "error_file_not_found": "Fichier non trouvé",
+    "success_watermark": "Watermark appliqué avec succès",
+}
+
+def get_message(key: str) -> str:
+    return MESSAGES.get(key, key)
+```

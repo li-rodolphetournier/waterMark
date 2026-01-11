@@ -1,0 +1,178 @@
+---
+description: Règles spécifiques au projet CestMonImage / Watermark App
+globs: ["watermark_app.py", "build_exe.py", "**/*.spec"]
+alwaysApply: true
+---
+
+# 🖼️ Projet CestMonImage - Règles Spécifiques
+
+## 📌 Contexte du Projet
+
+Application Windows de watermarking d'images avec :
+- Interface Tkinter
+- Traitement d'images Pillow
+- Métadonnées EXIF (piexif)
+- Packaging PyInstaller
+
+## 🎯 Règles Critiques
+
+### ⚠️ Chemins et Ressources
+**INTERDIT** : Coder en dur des chemins de fichiers pour les sprites/backgrounds
+**OBLIGATOIRE** : Tous les chemins doivent être configurables via l'interface
+
+```python
+# ❌ INTERDIT - Chemin codé en dur
+WATERMARK_ICON = "C:\\Users\\User\\Images\\icon.png"
+
+# ✅ CORRECT - Chemin dynamique
+def get_resource_path(relative_path: str) -> str:
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+```
+
+### Format de Sortie des Images
+- Les images watermarkées sont préfixées par `watermarked_`
+- Les images existantes avec ce préfixe sont ignorées
+- Les non-JPEG sont convertis en JPEG pour les métadonnées EXIF
+
+## 🏗️ Architecture
+
+### Classes Principales
+```
+WatermarkApp
+├── __init__()          # Initialisation GUI
+├── create_widgets()    # Création interface
+├── browse_folder()     # Sélection dossier
+├── choose_color()      # Choix couleur
+├── apply_watermark()   # Application watermark
+├── update_preview()    # Prévisualisation
+└── hex_to_rgb()        # Utilitaire couleur
+```
+
+### Variables Tkinter
+```python
+self.folder_path = tk.StringVar()      # Chemin du dossier
+self.copyright_text = tk.StringVar()   # Texte copyright
+self.signature_text = tk.StringVar()   # Signature auteur
+self.opacity = tk.IntVar()             # Transparence 0-100
+self.position = tk.StringVar()         # Position du watermark
+self.mosaic_mode = tk.BooleanVar()     # Mode mosaïque
+self.font_size_percent = tk.DoubleVar() # Taille police %
+```
+
+## 📝 Métadonnées EXIF
+
+### Structure des Données Watermark
+```python
+watermark_info = {
+    "text": str,              # Texte du copyright
+    "signature": str,         # Signature de l'auteur
+    "date_applied": str,      # ISO datetime
+    "opacity": float,         # 0.0 - 1.0
+    "position": str,          # top-left, bottom-right, etc.
+    "is_mosaic": bool,        # Mode mosaïque activé
+    "num_watermarks": int,    # Nombre de watermarks
+    "font": str,              # Nom de la police
+    "is_bold": bool,          # Police en gras
+    "font_size_percent": float,
+    "application": str,       # "CestMonImage"
+    "version": str            # Version de l'app
+}
+```
+
+### Champs EXIF Utilisés
+| Champ | Utilisation |
+|-------|-------------|
+| `ExifIFD.UserComment` | JSON complet des métadonnées |
+| `ImageIFD.Copyright` | Texte copyright |
+| `ImageIFD.Artist` | Signature auteur |
+| `ImageIFD.Software` | "CestMonImage" |
+| `ImageIFD.ImageDescription` | ID unique signature |
+
+## 🎨 Interface Utilisateur
+
+### Sections de l'Interface
+1. **Sélection du dossier** - Parcourir + Entry
+2. **Options du Copyright** - Symbole, texte, nombre, mosaïque
+3. **Style de Texte** - Police, gras
+4. **Apparence** - Couleur, position, transparence, taille
+5. **Prévisualisation** - Canvas avec preview
+6. **Bouton d'action** - Appliquer le copyright
+
+### Positions de Watermark
+- `top-left`
+- `top-right`
+- `bottom-left`
+- `bottom-right`
+- `center`
+
+### Symboles de Copyright
+- `©`
+- `®`
+- `™`
+- `(c)`
+- `All Rights Reserved`
+
+## 📦 Build et Distribution
+
+### Commande PyInstaller
+```bash
+pyinstaller \
+    --name=Application_Copyright_Images \
+    --onefile \
+    --windowed \
+    --clean \
+    --add-data=fonts;fonts \
+    watermark_app.py
+```
+
+### Structure de Distribution
+```
+exe_final/
+├── Application_Copyright_Images.exe
+└── fonts/
+    └── arial.ttf
+```
+
+### Dépendances Build
+```
+psutil>=5.9.0
+pyinstaller>=5.13.0
+pywin32>=306
+pillow>=10.0.0
+piexif>=1.1.3
+winshell>=0.6
+```
+
+## 🔄 Flux de Traitement
+
+```
+1. Sélection dossier
+2. Configuration options (copyright, style, position)
+3. Prévisualisation sur première image
+4. Clic "Appliquer"
+5. Pour chaque image:
+   a. Ouvrir image
+   b. Créer calque watermark RGBA
+   c. Dessiner texte + signature
+   d. Fusionner calques
+   e. Ajouter métadonnées EXIF
+   f. Sauvegarder watermarked_*
+6. Afficher résumé
+```
+
+## ⚠️ Gestion des Erreurs
+
+### Points de Défaillance Courants
+- Police non trouvée → Fallback sur Arial
+- Image corrompue → Skip avec message
+- Permissions fichier → Message explicite
+- Format non supporté → Conversion JPEG
+
+### Messages Utilisateur
+- Toujours afficher une `messagebox` pour les erreurs
+- Inclure les détails techniques en mode debug
+- Logger les erreurs dans la console pour le développement

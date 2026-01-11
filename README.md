@@ -1,71 +1,97 @@
-## Application de Copyright d'Images
+# 🖼️ CestMonImage - Application de Copyright d'Images
 
 Application Windows permettant d'ajouter facilement un ou plusieurs filigranes (copyright) sur des images, avec personnalisation avancée et traitement par lot.
 
-### Aperçu
+## 📸 Aperçu
 
-![Aperçu interface 1](Capture d’écran 2025-05-26 182531.png)
+![Aperçu interface 1](apercu.jpg)
 
-![Aperçu interface 2](Capture d’écran 2025-05-26 183517.png)
+## ✨ Fonctionnalités principales
 
-## Fonctionnalités principales
+### 📁 Sélection des sources
+- **Mode Dossier** : Traitement par lot de toutes les images d'un dossier
+- **Mode Image** : Sélection d'une image unique à traiter
+- **Nom de sortie personnalisable** : `monimage` → `monimage_001.jpg`, `monimage_002.jpg`...
+- **Gestion des doublons** : Ajout automatique d'un suffixe si le fichier existe
 
-- **Sélection de dossier**: choisissez un dossier d'images à traiter
-- **Texte et symbole**: personnalisez le texte et le symbole (©, ®, ™, etc.)
-- **Style du texte**: couleur, opacité, police (dont Arial embarquée), gras, taille relative (%)
-- **Positionnement**: coins, centre, ou **mode mosaïque** pour couvrir toute l'image
-- **Multiples filigranes**: jusqu'à 10 filigranes en mode normal
-- **Traitement par lot**: applique le filigrane à toutes les images du dossier
-- **Formats supportés**: PNG, JPG, JPEG, BMP, GIF
-- **Métadonnées EXIF (JPEG)**: écriture d'informations (copyright, signature, date)
-- **Prévisualisation**: rendu en direct avant application
+### 🎨 Style du watermark
+- **Symbole** : ©, ®, ™, (c), All Rights Reserved
+- **Texte personnalisé** : Votre texte de copyright
+- **Police** : Arial, Verdana, Calibri, Georgia, Juice ITC, etc.
+- **Texte en gras** : Support natif ou simulation pour polices sans Bold
+- **Couleur** : Palette complète avec sélecteur de couleur
+- **Transparence** : 0% à 100%
+- **Taille** : 1% à 20% de la largeur de l'image
 
-## Prérequis
+### 📍 Positionnement
+- **Haut-Gauche** / **Haut-Droite**
+- **Bas-Gauche** / **Bas-Droite**
+- **Centre**
+- **Mode Mosaïque** : Watermarks répétés sur toute l'image avec rotation -15°
 
+### 🔧 Options Mosaïque
+- **Espacement horizontal** : 0.1x à 5.0x
+- **Espacement vertical** : 0.1x à 5.0x
+- **Nombre de watermarks** : Calculé automatiquement
+
+### 📝 Métadonnées EXIF (JPEG)
+- **Auteur** : Enregistré dans les propriétés de l'image
+- **Titre** : Titre de l'image
+- **Objet** : Sujet/thème de l'image
+- **Commentaires** : Commentaires libres
+- **Copyright** : Texte complet du copyright
+- **Date** : Date d'application du watermark
+- **Logiciel** : "CestMonImage"
+
+### 👁️ Prévisualisation en temps réel
+- Mise à jour automatique à chaque modification de paramètre
+- Aperçu fidèle du rendu final
+
+## 📋 Formats supportés
+
+| Format | Lecture | Écriture | Métadonnées EXIF |
+|--------|---------|----------|------------------|
+| JPEG   | ✅      | ✅       | ✅               |
+| PNG    | ✅      | ✅ (→JPEG) | ❌             |
+| BMP    | ✅      | ✅ (→JPEG) | ❌             |
+| GIF    | ✅      | ✅ (→JPEG) | ❌             |
+
+## 🚀 Installation
+
+### Prérequis
 - Windows 10/11
-- Python 3.11 recommandé
+- Python 3.11+ recommandé
 
-## Installation (développement)
+### Installation (développement)
 
-1) Créez un environnement virtuel (recommandé)
+1. **Créez un environnement virtuel**
 
 ```bash
 python -m venv .venv
-.venv\\Scripts\\activate
+.venv\Scripts\activate
 ```
 
-2) Installez les dépendances
+2. **Installez les dépendances**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Lancer l'application
+3. **Lancez l'application**
 
 ```bash
 python watermark_app.py
 ```
 
-Etapes dans l'UI:
-- Cliquez sur « Parcourir » pour sélectionner le dossier
-- Réglez symbole, texte, police, couleur, opacité, taille (%)
-- Choisissez la position ou activez le mode mosaïque
-- Optionnel: ajoutez une signature (champ dédié)
-- Cliquez sur « Appliquer le copyright »
+## 📦 Build de l'exécutable Windows
 
-Les nouvelles images sont sauvegardées dans le même dossier avec le préfixe `watermarked_`.
-
-## Build de l'exécutable Windows
-
-Deux options sont fournies:
-
-- **Commande PyInstaller rapide**:
+### Option 1 : Commande rapide
 
 ```bash
-pyinstaller --name=Application_Copyright_Images --onefile --noconsole --clean --distpath=exe_final --add-data=fonts;fonts watermark_app.py
+pyinstaller --name=CestMonImage --onefile --noconsole --clean --distpath=exe_final --add-data=fonts;fonts watermark_app.py
 ```
 
-- **Script dédié**: `build_exe.py`
+### Option 2 : Script dédié
 
 ```bash
 python build_exe.py
@@ -73,34 +99,55 @@ python build_exe.py
 
 L'exécutable sera généré dans `exe_final/`.
 
-## Détails techniques
+## 🎯 Guide d'utilisation
 
-- **Interface**: Tkinter/ttk
-- **Traitement d'image**: Pillow (PIL)
-- **EXIF**: piexif (JPEG uniquement)
-- **Packaging**: PyInstaller
-- **Windows Shell**: pywin32, winshell (raccourcis, intégration)
-- **Processus système**: psutil
+1. **Sélectionnez la source**
+   - Choisissez "Dossier" ou "Image" 
+   - Cliquez sur "Parcourir"
 
-## Dépannage
+2. **Configurez le watermark**
+   - Symbole et texte du copyright
+   - Police, gras, couleur, taille
 
-- Si l'exécutable ne se génère pas, vérifiez les logs de PyInstaller et que `fonts/arial.ttf` est bien présent (copié au build). Vous pouvez aussi laisser l'application retomber sur la police système.
-- Sur certaines images, la lecture/écriture EXIF peut échouer (fichiers non JPEG ou EXIF corrompu). Dans ce cas, l'application convertira en JPEG et/ou sauvegardera sans métadonnées.
-- En cas d'erreur de permission sur Windows, exécutez le terminal en tant qu'administrateur pour le build.
+3. **Choisissez la position**
+   - Position fixe (coins, centre)
+   - Ou mode mosaïque pour couvrir l'image
 
-## Contribution
+4. **Remplissez les métadonnées** (optionnel)
+   - Auteur, Titre, Objet, Commentaires
 
-1. Fork
-2. Créez une branche: `git checkout -b feature/ma-fonctionnalite`
-3. Commitez: `git commit -m "feat: ajoute ma fonctionnalité"`
-4. Poussez: `git push origin feature/ma-fonctionnalite`
-5. Ouvrez une Pull Request
+5. **Vérifiez la prévisualisation**
 
-## Licence
+6. **Cliquez sur "Appliquer le copyright"**
+
+Les images sont sauvegardées avec le nom défini : `nom_001.jpg`, `nom_002.jpg`...
+
+## 🔧 Détails techniques
+
+| Composant | Technologie |
+|-----------|-------------|
+| Interface | Tkinter / ttk |
+| Traitement d'image | Pillow (PIL) |
+| Métadonnées EXIF | piexif |
+| Packaging | PyInstaller |
+| Windows Shell | pywin32, winshell |
+| Processus | psutil |
+
+## ⚠️ Dépannage
+
+| Problème | Solution |
+|----------|----------|
+| Exécutable ne se génère pas | Vérifiez que `fonts/arial.ttf` est présent |
+| Erreur EXIF | Le fichier sera converti en JPEG sans métadonnées |
+| Erreur de permission | Exécutez le terminal en administrateur |
+| Police non trouvée | Fallback automatique sur Arial |
+
+## 📄 Licence
 
 Ce projet est fourni tel quel. Ajoutez votre licence si besoin (MIT, Apache-2.0, etc.).
 
-## Notes
+## 📝 Notes
 
-- Les images originales ne sont pas modifiées; les résultats sont écrits avec le préfixe `watermarked_`.
-- Le projet inclut un `.gitignore` pour exclure les artefacts de build (`build/`, `dist/`, `exe_final/`, `output/`, etc.).
+- Les images originales ne sont **jamais** modifiées
+- Les résultats sont écrits avec le nom de sortie configuré
+- L'auteur n'est **pas** affiché sur l'image (métadonnées uniquement)

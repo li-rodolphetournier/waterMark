@@ -1,0 +1,257 @@
+---
+description: Règles pour le développement d'applications Windows en Python avec Tkinter
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# 🐍 Python - Application Windows Desktop
+
+## 📋 Conventions Générales
+
+### Style de Code
+- Suivre **PEP 8** pour le formatage
+- Utiliser des **docstrings** pour les classes et fonctions publiques
+- Noms de variables en `snake_case`
+- Noms de classes en `PascalCase`
+- Constantes en `UPPER_SNAKE_CASE`
+- Indentation de **4 espaces** (pas de tabs)
+- Ligne max **120 caractères**
+
+### Imports
+```python
+# Ordre des imports :
+# 1. Standard library
+import os
+import sys
+import json
+
+# 2. Third-party
+from PIL import Image, ImageDraw
+import piexif
+
+# 3. Local
+from .utils import helper
+```
+
+### Type Hints
+- Utiliser les type hints Python 3.9+ natifs
+```python
+def process_image(path: str, options: dict[str, any]) -> Image.Image | None:
+    ...
+```
+
+## 🖼️ Tkinter - Bonnes Pratiques
+
+### Structure de Classe GUI
+```python
+class MonApplication:
+    def __init__(self, root: tk.Tk):
+        self.root = root
+        self._init_variables()
+        self._create_widgets()
+        self._setup_bindings()
+        self._configure_styles()
+    
+    def _init_variables(self):
+        """Initialiser les variables Tkinter"""
+        self.my_var = tk.StringVar(value="default")
+    
+    def _create_widgets(self):
+        """Créer tous les widgets"""
+        ...
+    
+    def _setup_bindings(self):
+        """Configurer les événements"""
+        ...
+```
+
+### Widgets et Layout
+- Préférer `ttk` aux widgets `tk` de base
+- Utiliser `grid()` pour les layouts complexes, `pack()` pour les simples
+- Toujours configurer `weight` pour le redimensionnement
+- Créer des `LabelFrame` pour grouper les options
+
+### Gestion des Erreurs GUI
+```python
+def show_error(self, exc_type, exc_value, exc_traceback):
+    """Handler d'erreurs global pour Tkinter"""
+    error_msg = f"Type: {exc_type.__name__}\nMessage: {str(exc_value)}"
+    messagebox.showerror("Erreur", error_msg)
+
+# Assigner au root
+self.root.report_callback_exception = self.show_error
+```
+
+## 🪟 Windows - Spécificités
+
+### Chemins et Ressources
+```python
+def get_resource_path(relative_path: str) -> str:
+    """Obtient le chemin absolu, compatible PyInstaller"""
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temp folder
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+```
+
+### Polices Windows
+```python
+# Accès aux polices système
+fonts_dir = os.path.join(os.environ["WINDIR"], "Fonts")
+font_path = os.path.join(fonts_dir, "arial.ttf")
+```
+
+### Messages d'Erreur Windows
+```python
+import ctypes
+
+def show_error_and_exit(title: str, message: str):
+    """Affiche une MessageBox Windows native"""
+    ctypes.windll.user32.MessageBoxW(0, message, title, 0x10)
+    sys.exit(1)
+```
+
+### Vérification Admin
+```python
+def is_admin() -> bool:
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+```
+
+## 🖼️ Pillow - Traitement d'Images
+
+### Ouverture Sécurisée
+```python
+from PIL import Image
+
+def open_image_safely(path: str) -> Image.Image | None:
+    try:
+        img = Image.open(path)
+        img.load()  # Force le chargement complet
+        return img
+    except Exception as e:
+        print(f"Erreur ouverture image: {e}")
+        return None
+```
+
+### Conversion de Modes
+```python
+# Toujours vérifier le mode avant les opérations
+if img.mode != 'RGBA':
+    img = img.convert('RGBA')
+
+# Pour sauvegarder en JPEG
+img = img.convert('RGB')
+```
+
+### Watermark avec Transparence
+```python
+# Créer un calque transparent
+watermark = Image.new('RGBA', img.size, (0, 0, 0, 0))
+draw = ImageDraw.Draw(watermark)
+
+# Dessiner avec alpha
+draw.text(pos, text, font=font, fill=(r, g, b, int(255 * opacity)))
+
+# Fusionner
+result = Image.alpha_composite(img, watermark)
+```
+
+## 📦 PyInstaller - Packaging
+
+### Options Recommandées
+```bash
+pyinstaller \
+    --name=MonApp \
+    --onefile \
+    --windowed \
+    --clean \
+    --add-data="fonts;fonts" \
+    --add-data="assets;assets" \
+    main.py
+```
+
+### Structure des Données
+- NE JAMAIS coder en dur les chemins vers les ressources
+- Toujours utiliser `get_resource_path()` pour les assets
+- Les chemins doivent être configurables via l'interface
+
+## ⚠️ Gestion des Erreurs
+
+### Try/Except Structuré
+```python
+try:
+    # Code principal
+    result = process_image(path)
+except FileNotFoundError:
+    messagebox.showerror("Erreur", "Fichier non trouvé")
+except PermissionError:
+    messagebox.showerror("Erreur", "Accès refusé")
+except Exception as e:
+    # Log détaillé pour debug
+    import traceback
+    error_msg = f"Erreur: {e}\n{traceback.format_exc()}"
+    messagebox.showerror("Erreur critique", error_msg)
+```
+
+### Cleanup Resources
+```python
+# Utiliser context managers
+with Image.open(path) as img:
+    # Traitement...
+    pass
+
+# Ou fermer explicitement
+img = Image.open(path)
+try:
+    # Traitement...
+finally:
+    img.close()
+```
+
+## 🔒 Sécurité et Validation
+
+### Validation des Entrées
+```python
+def validate_path(path: str) -> bool:
+    """Valide un chemin de fichier"""
+    if not path:
+        return False
+    if not os.path.exists(path):
+        return False
+    if not os.path.isfile(path):
+        return False
+    return True
+```
+
+### Extensions de Fichiers
+```python
+SUPPORTED_FORMATS = ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
+
+def is_image_file(filename: str) -> bool:
+    return filename.lower().endswith(SUPPORTED_FORMATS)
+```
+
+## 📁 Structure de Projet Recommandée
+
+```
+project/
+├── .cursor/
+│   ├── mcp.json
+│   └── rules/
+├── src/
+│   ├── __init__.py
+│   ├── main.py
+│   └── utils/
+├── assets/
+│   └── icon.ico
+├── fonts/
+│   └── arial.ttf
+├── tests/
+├── requirements.txt
+├── requirements_build.txt
+└── README.md
+```
